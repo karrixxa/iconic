@@ -65,9 +65,3 @@ generate_toy_data <- function(n          = 500,
     true_total   = beta_Z + alpha_M * beta_M
   )
 }
-
-
-
-
-usethis::use_git()       # initializes git inside scenic/
-usethis::use_github()    # creates the repo on GitHub and pushes
