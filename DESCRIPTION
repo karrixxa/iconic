@@ -1,0 +1,20 @@
+Package: scenic
+Title: Simulation and Causal Estimation for Negative Control Inference
+Version: 0.1.0
+Authors@R: person("Charis", "Xiong", role = c("aut", "cre"),
+    email = "charis.xiong@gmail.com")
+Description: Provides functions for simulating data under a causal model with
+    unmeasured confounding, and for running four causal inference estimators:
+    DIRECT (OLS with controls), COCA (negative-control outcome correction),
+    IV2SLS (two-stage least squares), and PGC (proxy-based G-component
+    correction). Includes parallelized simulation sweeps across parameter grids.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.1
+Imports:
+    AER,
+    parallel
+Suggests:
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
