@@ -42,14 +42,23 @@
 #' dat <- generate_toy_data(n = n, seed = 1)  # internal helper
 #' fit_direct(dat$Y[, 1], dat$Z, dat$G[, 1], dat$W[, 1], dat$synthetic_data)
 fit_direct <- function(y, Z, g, w, covars = NULL) {
+  NA_result <- list(beta = NA_real_, se = NA_real_, pvalue = NA_real_)
   cnames <- if (!is.null(covars)) names(covars) else character(0)
   d      <- cbind(data.frame(y = y, Z = Z, g = g, w = w), covars)
   fml    <- as.formula(paste0("y ~ Z + g + w", .covar_str(cnames)))
 
-  fit <- lm(fml, data = d)
-  .extract_coef(fit, "Z")
-}
+  fit <- tryCatch(lm(fml, data = d), error = function(e) NULL)
+  if (is.null(fit)) return(NA_result)
 
+  sm <- summary(fit)$coefficients
+  if (!"Z" %in% rownames(sm)) return(NA_result)
+
+  list(
+    beta   = as.numeric(coef(fit)["Z"]),
+    se     = as.numeric(sm["Z", 2]),
+    pvalue = as.numeric(sm["Z", 4])
+  )
+}
 
 #2. COCA
 
@@ -151,13 +160,11 @@ fit_iv2sls <- function(y, Z, g, w, covars = NULL, min_f = 10) {
     AER::ivreg(fml_2sls, data = d_iv),
     error = function(e) NULL
   )
-  if (is.null(fit)) return(NA_result)
-
-  sm <- summary(fit)$coefficients
+  if (!"Z" %in% names(coef(fit))) return(NA_result)
   list(
-    beta   = coef(fit)["Z"],
-    se     = sm["Z", 2],
-    pvalue = sm["Z", 4]
+    beta   = as.numeric(coef(fit)["Z"]),
+    se     = as.numeric(sm["Z", 2]),
+    pvalue = as.numeric(sm["Z", 4])
   )
 }
 
@@ -214,12 +221,10 @@ fit_pgc <- function(y, Z, g, w, covars = NULL) {
     lm(as.formula(paste0("y ~ Z + W_hat", cs)), data = d_f),
     error = function(e) NULL
   )
-  if (is.null(fit_f)) return(NA_result)
-
-  sm <- summary(fit_f)$coefficients
+  if (!"Z" %in% names(coef(fit))) return(NA_result)
   list(
-    beta   = coef(fit_f)["Z"],
-    se     = sm["Z", 2],
-    pvalue = sm["Z", 4]
+    beta   = as.numeric(coef(fit)["Z"]),
+    se     = as.numeric(sm["Z", 2]),
+    pvalue = as.numeric(sm["Z", 4])
   )
 }

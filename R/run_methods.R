@@ -19,7 +19,7 @@ run_methods <- function(dat, n_features = ncol(dat$Y)) {
   W  <- dat$W
   cv <- dat$synthetic_data
 
-  W_avg <- rowMeans(W)     # averaged W used by COCA and PGC for stability
+  W_avg <- rowMeans(W)
 
   results <- vector("list", n_features * 5L)
   j       <- 1L
@@ -27,7 +27,7 @@ run_methods <- function(dat, n_features = ncol(dat$Y)) {
   for (f in seq_len(n_features)) {
     y <- Y[, f]; w <- W[, f]; g <- G[, f]
     ok <- complete.cases(cbind(y, w, g, Z, cv))
-    if (sum(ok) < 50) { j <- j + 5L; next }
+    if (sum(ok) < 20) { j <- j + 5L; next }
 
     y_f  <- y[ok]
     w_f  <- w[ok]
@@ -43,8 +43,10 @@ run_methods <- function(dat, n_features = ncol(dat$Y)) {
       list(beta = coef(fit)["Z_f"], se = sm["Z_f", 2], pvalue = sm["Z_f", 4])
     }, error = function(e) list(beta = NA_real_, se = NA_real_, pvalue = NA_real_))
     results[[j]] <- data.frame(feature = f, method = "UNADJ",
-                               beta = res$beta, se = res$se,
-                               pvalue = res$pvalue, stringsAsFactors = FALSE)
+                               beta   = as.numeric(res$beta),
+                               se     = as.numeric(res$se),
+                               pvalue = as.numeric(res$pvalue),
+                               stringsAsFactors = FALSE)
     j <- j + 1L
 
     # 1. DIRECT
@@ -53,15 +55,19 @@ run_methods <- function(dat, n_features = ncol(dat$Y)) {
       error = function(e) list(beta = NA_real_, se = NA_real_, pvalue = NA_real_)
     )
     results[[j]] <- data.frame(feature = f, method = "DIRECT",
-                               beta = res$beta, se = res$se,
-                               pvalue = res$pvalue, stringsAsFactors = FALSE)
+                               beta   = as.numeric(res$beta),
+                               se     = as.numeric(res$se),
+                               pvalue = as.numeric(res$pvalue),
+                               stringsAsFactors = FALSE)
     j <- j + 1L
 
-    # 2. COCA  (uses W_avg for stability)
+    # 2. COCA
     res <- fit_coca(y_f, Z_f, Wa_f, cv_f)
     results[[j]] <- data.frame(feature = f, method = "COCA",
-                               beta = res$beta, se = res$se,
-                               pvalue = res$pvalue, stringsAsFactors = FALSE)
+                               beta   = as.numeric(res$beta),
+                               se     = as.numeric(res$se),
+                               pvalue = as.numeric(res$pvalue),
+                               stringsAsFactors = FALSE)
     j <- j + 1L
 
     # 3. IV2SLS
@@ -70,18 +76,22 @@ run_methods <- function(dat, n_features = ncol(dat$Y)) {
       error = function(e) list(beta = NA_real_, se = NA_real_, pvalue = NA_real_)
     )
     results[[j]] <- data.frame(feature = f, method = "IV2SLS",
-                               beta = res$beta, se = res$se,
-                               pvalue = res$pvalue, stringsAsFactors = FALSE)
+                               beta   = as.numeric(res$beta),
+                               se     = as.numeric(res$se),
+                               pvalue = as.numeric(res$pvalue),
+                               stringsAsFactors = FALSE)
     j <- j + 1L
 
-    # 4. PGC  (uses W_avg for stability)
+    # 4. PGC
     res <- tryCatch(
       fit_pgc(y_f, Z_f, g_f, Wa_f, cv_f),
       error = function(e) list(beta = NA_real_, se = NA_real_, pvalue = NA_real_)
     )
     results[[j]] <- data.frame(feature = f, method = "PGC",
-                               beta = res$beta, se = res$se,
-                               pvalue = res$pvalue, stringsAsFactors = FALSE)
+                               beta   = as.numeric(res$beta),
+                               se     = as.numeric(res$se),
+                               pvalue = as.numeric(res$pvalue),
+                               stringsAsFactors = FALSE)
     j <- j + 1L
   }
 
@@ -118,3 +128,5 @@ summarise_results <- function(combined, true_total) {
   })
   do.call(rbind, rows)
 }
+
+
