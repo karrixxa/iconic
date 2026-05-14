@@ -30,7 +30,7 @@ generate_toy_data <- function(n          = 500,
   G  <- rnorm(n)
 
   Z_raw <- 0.6 * G + conf_str * U1 + rnorm(n, 0, 0.5)
-  Z     <- as.numeric(scale(Z_raw))
+  Z <- as.numeric(scale(Z_raw))
 
   M <- alpha_M * Z + rnorm(n, 0, 0.05)
 
@@ -46,14 +46,14 @@ generate_toy_data <- function(n          = 500,
   }
 
   list(
-    Z            = Z,
-    G            = matrix(rep(G, n_features), n, n_features),
-    Y            = Y,
-    W            = W,
-    U1           = U1,
-    M            = M,
+    Z = Z,
+    G = matrix(rep(G, n_features), n, n_features),
+    Y = Y,
+    W = W,
+    U1 = U1,
+    M = M,
     synthetic_data = data.frame(
-      fetal_sex       = rbinom(n, 1, 0.5),
+      fetal_sex = rbinom(n, 1, 0.5),
       gestational_age = rnorm(n)
     ),
     true_total = beta_Z + alpha_M * beta_M

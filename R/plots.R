@@ -18,7 +18,7 @@ scenic_method_colors <- c(
 scenic_method_order <- c("UNADJ", "DIRECT", "COCA", "IV2SLS", "PGC")
 
 
-# ── Internal cosmetic helpers ─────────────────────────────────────────────────
+#Internal cosmetic helpers
 
 .set_theme <- function(mar = c(5, 5, 4, 2) + 0.1) {
   par(mar = mar, bg = "white",
@@ -47,14 +47,13 @@ scenic_method_order <- c("UNADJ", "DIRECT", "COCA", "IV2SLS", "PGC")
 .add_legend <- function(pos = "topleft", ncol = 1) {
   legend(pos,
          legend = scenic_method_order,
-         col    = scenic_method_colors[scenic_method_order],
+         col = scenic_method_colors[scenic_method_order],
          lwd = 2, pch = 16, bty = "n", cex = 0.85, pt.cex = 1.2,
          ncol = ncol)
 }
 
 
 #' Grouped boxplots of per-seed bias across a parameter sweep
-#'
 #' @param iter_bias   Data frame with columns iter, method, bias, pval.
 #' @param param_grid  Sorted numeric vector of parameter values.
 #' @param xlab        X-axis label.
@@ -65,23 +64,17 @@ scenic_method_order <- c("UNADJ", "DIRECT", "COCA", "IV2SLS", "PGC")
 #' @param methods     Methods to include. Default: all five.
 #'
 #' @export
-plot_bias_boxplot <- function(iter_bias,
-                              param_grid,
-                              xlab,
-                              ylab        = "Bias  (mean estimate - true)",
-                              main        = "",
-                              xfmt        = "%.2f",
-                              legend_pos  = "topleft",
-                              methods     = scenic_method_order) {
+
+plot_bias_boxplot <- function(iter_bias, param_grid, xlab, ylab = "Bias  (mean estimate - true)", main = "", xfmt = "%.2f", legend_pos  = "topleft", methods = scenic_method_order) {
 
   pvals  <- sort(unique(param_grid))
-  n_m    <- length(methods)
-  n_p    <- length(pvals)
-  gap    <- 1.4; bw <- 0.62
+  n_m <- length(methods)
+  n_p <- length(pvals)
+  gap <- 1.4; bw <- 0.62
   xc_grp <- seq(1, by = n_m + gap, length.out = n_p)
-  offs   <- seq(-(n_m - 1) / 2, (n_m - 1) / 2) * bw
-  all_b  <- iter_bias$bias[!is.na(iter_bias$bias)]
-  ylim   <- range(all_b) + c(-0.04, 0.04)
+  offs <- seq(-(n_m - 1) / 2, (n_m - 1) / 2) * bw
+  all_b <- iter_bias$bias[!is.na(iter_bias$bias)]
+  ylim<- range(all_b) + c(-0.04, 0.04)
 
   .set_theme(mar = c(6, 5.5, 4.5, 2) + 0.1)
   plot(NA,
@@ -109,7 +102,7 @@ plot_bias_boxplot <- function(iter_bias,
        cex.axis = 0.84, col.axis = "grey25")
   legend(legend_pos,
          legend = methods,
-         fill   = adjustcolor(scenic_method_colors[methods], 0.35),
+         fill = adjustcolor(scenic_method_colors[methods], 0.35),
          border = scenic_method_colors[methods],
          bty = "n", cex = 0.78, ncol = 2, inset = 0.01)
 }
@@ -122,16 +115,14 @@ plot_bias_boxplot <- function(iter_bias,
 #' @param title       Plot title. If NULL a default is constructed.
 #'
 #' @export
-plot_bias_distribution <- function(sim_result,
-                                   methods = scenic_method_order,
-                                   title   = NULL) {
-  ibias      <- sim_result$iter_bias
+plot_bias_distribution <- function(sim_result, methods = scenic_method_order, title = NULL) {
+  ibias  <- sim_result$iter_bias
   true_total <- sim_result$true_total
-  p          <- sim_result$params
+  p  <- sim_result$params
 
   if (is.null(title))
     title <- sprintf(
-      "Bias Distribution across %d Seeds -- Baseline\ndelta = %.1f | omega = %.1f | n = %d | tau = %.2f",
+      "Bias Distribution across %d Seeds - Baseline\ndelta = %.1f | omega = %.1f | n = %d | tau = %.2f",
       p$n_iter, p$conf_str, p$w_signal, p$n_samples, true_total)
 
   n_m   <- length(methods)
@@ -169,13 +160,11 @@ plot_bias_distribution <- function(sim_result,
 #' @param alpha       Nominal significance level. Default 0.05.
 #'
 #' @export
-plot_type1_boxplot <- function(null_result,
-                               methods  = scenic_method_order,
-                               conf_str = 0.80,
-                               alpha    = 0.05) {
+
+plot_type1_boxplot <- function(null_result, methods  = scenic_method_order, conf_str = 0.80, alpha = 0.05) {
 
   null_combined <- null_result$raw
-  n_m           <- length(methods)
+  n_m <- length(methods)
 
   null_iter_rates <- do.call(rbind, lapply(sort(unique(null_combined$iter)), function(i) {
     sub <- null_combined[null_combined$iter == i, ]
@@ -192,8 +181,7 @@ plot_type1_boxplot <- function(null_result,
   plot(NA, xlim = c(0.3, n_m + 0.7), ylim = ylim2,
        xaxt = "n", xlab = "",
        ylab = "Type I Error Rate  (prop. p < 0.05 per seed)",
-       main = sprintf("Type I Error Rate by Method\ntrue total = 0 | delta = %.1f | each point = one seed",
-                      conf_str))
+       main = sprintf("Type I Error Rate by Method\ntrue total = 0 | delta = %.1f | each point = one seed", conf_str))
   .add_grid()
   abline(h = alpha, lty = 2, lwd = 2.2, col = "#c0392b")
   axis(1, at = seq_along(methods), labels = methods,
@@ -221,10 +209,8 @@ plot_type1_boxplot <- function(null_result,
 #' @param title    Plot title.
 #'
 #' @export
-plot_type1_vs_conf <- function(t1e_df,
-                               methods = scenic_method_order,
-                               alpha   = 0.05,
-                               title   = "Type I Error Rate vs Confounding Strength") {
+
+plot_type1_vs_conf <- function(t1e_df, methods = scenic_method_order, alpha = 0.05, title  = "Type I Error Rate vs Confounding Strength") {
 
   .set_theme(mar = c(5, 5.5, 4.5, 2) + 0.1)
   ylim <- c(0, min(1, max(t1e_df$type1_error, na.rm = TRUE) * 1.15))
@@ -261,10 +247,9 @@ plot_type1_vs_conf <- function(t1e_df,
 #' @param title      Plot title.
 #'
 #' @export
-plot_estimated_vs_true <- function(sweep_df,
-                                   methods = scenic_method_order,
-                                   title   = "Estimated vs True Effect") {
-  tt   <- sort(unique(sweep_df$true_total))
+
+plot_estimated_vs_true <- function(sweep_df, methods = scenic_method_order, title = "Estimated vs True Effect") {
+  tt  <- sort(unique(sweep_df$true_total))
   ylim <- range(sweep_df$mean[sweep_df$method %in% methods], na.rm = TRUE) + c(-0.05, 0.05)
 
   .set_theme()
@@ -292,10 +277,8 @@ plot_estimated_vs_true <- function(sweep_df,
 #' @param title       Plot title.
 #'
 #' @export
-plot_bias <- function(sweep_df,
-                      param_label = "Parameter Value",
-                      methods     = scenic_method_order,
-                      title       = "Absolute Bias vs Parameter") {
+
+plot_bias <- function(sweep_df, param_label = "Parameter Value", methods= scenic_method_order, title= "Absolute Bias vs Parameter") {
   xvals <- sort(unique(sweep_df$param_value))
   ylim  <- c(0, max(sweep_df$abs_bias[sweep_df$method %in% methods], na.rm = TRUE) * 1.1)
 
@@ -323,11 +306,8 @@ plot_bias <- function(sweep_df,
 #' @param legend_pos  Legend position. Default "bottomleft".
 #'
 #' @export
-plot_power <- function(sweep_df,
-                       param_label = "Parameter Value",
-                       methods     = scenic_method_order,
-                       title       = "Detection Rate vs Parameter",
-                       legend_pos  = "bottomleft") {
+
+plot_power <- function(sweep_df, param_label = "Parameter Value",methods = scenic_method_order, title = "Detection Rate vs Parameter",legend_pos  = "bottomleft") {
   xvals <- sort(unique(sweep_df$param_value))
 
   .set_theme()
@@ -354,8 +334,8 @@ plot_power <- function(sweep_df,
 #' @param title     Plot title.
 #'
 #' @export
-plot_type1_error <- function(null_df,
-                             title = "Type I Error Rate by Method") {
+
+plot_type1_error <- function(null_df, title = "Type I Error Rate by Method") {
   rates <- setNames(null_df$type1_error, null_df$method)
   rates <- rates[scenic_method_order]
 
@@ -379,9 +359,7 @@ plot_type1_error <- function(null_df,
 #' @param title       Plot title.
 #'
 #' @export
-plot_estimate_distribution <- function(sim_result,
-                                       methods = scenic_method_order,
-                                       title   = NULL) {
+plot_estimate_distribution <- function(sim_result, methods = scenic_method_order, title = NULL) {
   combined   <- sim_result$raw
   true_total <- sim_result$true_total
 

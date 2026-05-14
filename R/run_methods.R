@@ -22,7 +22,7 @@ run_methods <- function(dat, n_features = ncol(dat$Y)) {
   W_avg <- rowMeans(W)
 
   results <- vector("list", n_features * 5L)
-  j       <- 1L
+  j <- 1L
 
   for (f in seq_len(n_features)) {
     y <- Y[, f]; w <- W[, f]; g <- G[, f]
@@ -43,8 +43,8 @@ run_methods <- function(dat, n_features = ncol(dat$Y)) {
       list(beta = coef(fit)["Z_f"], se = sm["Z_f", 2], pvalue = sm["Z_f", 4])
     }, error = function(e) list(beta = NA_real_, se = NA_real_, pvalue = NA_real_))
     results[[j]] <- data.frame(feature = f, method = "UNADJ",
-                               beta   = as.numeric(res$beta),
-                               se     = as.numeric(res$se),
+                               beta = as.numeric(res$beta),
+                               se = as.numeric(res$se),
                                pvalue = as.numeric(res$pvalue),
                                stringsAsFactors = FALSE)
     j <- j + 1L
@@ -55,8 +55,8 @@ run_methods <- function(dat, n_features = ncol(dat$Y)) {
       error = function(e) list(beta = NA_real_, se = NA_real_, pvalue = NA_real_)
     )
     results[[j]] <- data.frame(feature = f, method = "DIRECT",
-                               beta   = as.numeric(res$beta),
-                               se     = as.numeric(res$se),
+                               beta = as.numeric(res$beta),
+                               se = as.numeric(res$se),
                                pvalue = as.numeric(res$pvalue),
                                stringsAsFactors = FALSE)
     j <- j + 1L
@@ -64,8 +64,8 @@ run_methods <- function(dat, n_features = ncol(dat$Y)) {
     # 2. COCA
     res <- fit_coca(y_f, Z_f, Wa_f, cv_f)
     results[[j]] <- data.frame(feature = f, method = "COCA",
-                               beta   = as.numeric(res$beta),
-                               se     = as.numeric(res$se),
+                               beta  = as.numeric(res$beta),
+                               se = as.numeric(res$se),
                                pvalue = as.numeric(res$pvalue),
                                stringsAsFactors = FALSE)
     j <- j + 1L
@@ -76,8 +76,8 @@ run_methods <- function(dat, n_features = ncol(dat$Y)) {
       error = function(e) list(beta = NA_real_, se = NA_real_, pvalue = NA_real_)
     )
     results[[j]] <- data.frame(feature = f, method = "IV2SLS",
-                               beta   = as.numeric(res$beta),
-                               se     = as.numeric(res$se),
+                               beta = as.numeric(res$beta),
+                               se = as.numeric(res$se),
                                pvalue = as.numeric(res$pvalue),
                                stringsAsFactors = FALSE)
     j <- j + 1L
@@ -88,8 +88,8 @@ run_methods <- function(dat, n_features = ncol(dat$Y)) {
       error = function(e) list(beta = NA_real_, se = NA_real_, pvalue = NA_real_)
     )
     results[[j]] <- data.frame(feature = f, method = "PGC",
-                               beta   = as.numeric(res$beta),
-                               se     = as.numeric(res$se),
+                               beta = as.numeric(res$beta),
+                               se = as.numeric(res$se),
                                pvalue = as.numeric(res$pvalue),
                                stringsAsFactors = FALSE)
     j <- j + 1L

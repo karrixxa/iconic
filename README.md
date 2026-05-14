@@ -1,58 +1,89 @@
 # scenic
 
-**Simulation and Causal Estimation for Negative Control Inference**
+**S**imulation and **C**ausal **E**stimation with **N**egative-control **I**nference for **C**ausal effect studies
 
-`scenic` is an R package for simulating data under a causal model with unmeasured confounding, and for benchmarking four causal inference estimators:
-
-| Estimator | Function | Description |
-|-----------|----------|-------------|
-| UNADJ     | *(internal)* | Unadjusted OLS baseline |
-| DIRECT    | `fit_direct()` | OLS with instrument + Negative Controls as covariates |
-| COCA      | `fit_coca()` | Negative-control outcome correction (ratio estimator) |
-| IV2SLS    | `fit_iv2sls()` | Two-stage least squares with genetic instrument |
-| PGC       | `fit_pgc()` | Proxy G-component correction (3-step) |
+An R package for benchmarking causal inference methods in multi-omic observational studies with unmeasured confounding, motivated by the SCENIC framework for studying maternal PFAS exposure and placental transcription.
 
 ---
 
-## Causal model
+## Background
 
-```
-U  ~ N(0,1)                          Unmeasured confounder
-U2 ~ N(0,1)                          Extra noise source
-G  ~ N(0,1)                          Genetic instrument (G -> Z only)
+Estimating causal effects of prenatal exposures on fetal outcomes is complicated by unmeasured confounding, factors like socioeconomic stress or diet that affect both maternal PFAS levels and placental gene expression. Standard regression adjusts for observed covariates but cannot remove this residual confounding.
 
-Z  = 0.6*G + conf_str*U + noise       Exposure (scaled)
-M  = alpha_M * Z + noise              Mediator
-Y  = beta_M*M + beta_Z*Z + gamma*U + noise   Outcome
-W  = w_signal*U + (1-w_signal)*U2 + noise    Negative control
+The SCENIC framework leverages three sources of identification:
 
-True total effect of Z on Y: beta_Z + alpha_M * beta_M
-```
+- G — a polygenic risk score for PFAS metabolism as a genetic instrument (Mendelian randomization)
+- W — a panel of negative-control outcomes (transcripts not on the PFAS causal pathway) that share the same unmeasured confounders as Y
+- C — observed covariates (fetal sex, gestational age, maternal ancestry)
 
-**Key parameters:**
-
-| Parameter | Default | Description |
-|-----------|---------|-------------|
-| `beta_Z`  | 0.10    | Direct effect Z → Y |
-| `alpha_M` | 0.50    | Z → Mediator path |
-| `beta_M`  | 0.30    | Mediator → Y path |
-| `conf_str`| 0.80    | Confounding strength (U → Z and U → Y) |
-| `w_signal`| 0.70    | Quality of negative control W as U proxy |
+This package provides a toy simulation where the ground truth is known exactly, allowing for a rigorous benchmarking of all four estimators.
 
 ---
 
-## Package structure
+## Installation
+
+```r
+# Install from GitHub
+remotes::install_github("karrixxa/scenic")
+```
+
+Dependencies: `AER`, `parallel` (both on CRAN).
+
+---
+
+## The Four Estimators
+
+| Name | Function | Approach |
+|------|----------|----------|
+| UNADJ | *(internal)* | Unadjusted OLS — bias reference |
+| DIRECT | `fit_direct()` | OLS with G, W, and covariates as controls |
+| COCA | `fit_coca()` | Negative-control ratio correction (delta method SE) |
+| IV/2SLS | `fit_iv2sls()` | Two-stage least squares using G as instrument |
+| PGC | `fit_pgc()` | Proxy G-component correction (3-step residualisation) |
+
+---
+## Causal Model
+
+```
+G ~ N(0,1)                               Genetic instrument (PFAS PRS)
+U1, U2 ~ N(0,1)                          Unmeasured confounders
+Z = scale(0.6*G + delta*U1 + eps)        Maternal PFAS (scaled)
+M = alpha_M*Z + eps                       Mediator
+Y_f = beta_M*M + beta_Z*Z + gamma_f*U1  Placental transcript f
+W_f = omega*U1 + (1-omega)*U2 + eps      Negative-control transcript f
+
+True total effect: tau = beta_Z + alpha_M * beta_M
+```
+
+---
+
+## Key Findings (toy simulation)
+
+- IV/2SLS is unbiased and correctly controls Type I error at 5% across all confounding strengths. Recommended for the real data analysis.
+- PGC is unbiased on average but ~2x higher variance than IV/2SLS.
+- DIRECT has structural bias that does not shrink with sample size.
+- COCA becomes unstable at low proxy quality; Type I error approaches 100% under confounding.
+- UNADJ is always severely biased; provided as a reference floor.
+
+---
+
+## Package Structure
 
 ```
 scenic/
 ├── R/
-│   ├── generate_data.R     # Internal: data-generating process
-│   ├── estimators.R        # Exported: fit_direct, fit_coca, fit_iv2sls, fit_pgc
-│   ├── run_methods.R       # Internal: loop over features, summarise
-│   ├── simulation.R        # Exported: run_simulation, sweep_param, run_null_sim
-│   └── plots.R             # Exported: plot_* helpers
-├── scenic_cluster_analysis.R   # Top-level analysis script for cluster
+│   ├── estimators.R    # fit_direct, fit_coca, fit_iv2sls, fit_pgc
+│   ├── generate_data.R # generate_toy_data (internal DGP)
+│   ├── run_methods.R   # run_methods, summarise_results (internal wrappers)
+│   ├── simulation.R    # run_simulation, sweep_param, run_null_sim, sweep_null_by_conf
+│   └── plots.R         # plotting helpers
+├── tests/testthat/     # testthat unit tests
 ├── DESCRIPTION
-├── NAMESPACE
-└── README.md
+└── NAMESPACE
 ```
+
+---
+
+## License
+
+MIT
