@@ -1,6 +1,6 @@
-# scenic
+# iconic
 
-**S**imulation and **C**ausal **E**stimation with **N**egative-control **I**nference for **C**ausal effect studies
+**I**nference with **C**ausal **O**bservational **N**egative-control **I**nstruments and **C**ontrols
 
 An R package for benchmarking causal inference methods in multi-omic observational studies with unmeasured confounding, motivated by the SCENIC framework for studying maternal PFAS exposure and placental transcription.
 
@@ -12,9 +12,9 @@ Estimating causal effects of prenatal exposures on fetal outcomes is complicated
 
 The SCENIC framework leverages three sources of identification:
 
-- G — a polygenic risk score for PFAS metabolism as a genetic instrument (Mendelian randomization)
-- W — a panel of negative-control outcomes (transcripts not on the PFAS causal pathway) that share the same unmeasured confounders as Y
-- C — observed covariates (fetal sex, gestational age, maternal ancestry)
+- **G** — a polygenic risk score for PFAS metabolism as a genetic instrument (Mendelian randomization)
+- **W** — a panel of negative-control outcomes (transcripts not on the PFAS causal pathway) that share the same unmeasured confounders as Y
+- **C** — observed covariates (fetal sex, gestational age, maternal ancestry)
 
 This package provides a toy simulation where the ground truth is known exactly, allowing for a rigorous benchmarking of all four estimators.
 
@@ -23,8 +23,7 @@ This package provides a toy simulation where the ground truth is known exactly, 
 ## Installation
 
 ```r
-# Install from GitHub
-remotes::install_github("karrixxa/scenic")
+remotes::install_github("karrixxa/iconic")
 ```
 
 Dependencies: `AER`, `parallel` (both on CRAN).
@@ -33,15 +32,16 @@ Dependencies: `AER`, `parallel` (both on CRAN).
 
 ## The Four Estimators
 
-| Name | Function | Approach |
-|------|----------|----------|
-| UNADJ | *(internal)* | Unadjusted OLS — bias reference |
-| DIRECT | `fit_direct()` | OLS with G, W, and covariates as controls |
-| COCA | `fit_coca()` | Negative-control ratio correction (delta method SE) |
-| IV/2SLS | `fit_iv2sls()` | Two-stage least squares using G as instrument |
-| PGC | `fit_pgc()` | Proxy G-component correction (3-step residualisation) |
+| Name    | Function       | Approach                                              |
+|---------|----------------|-------------------------------------------------------|
+| UNADJ   | *(internal)*   | Unadjusted OLS — bias reference                       |
+| DIRECT  | `fit_direct()` | OLS with G, W, and covariates as controls             |
+| COCA    | `fit_coca()`   | Negative-control ratio correction (delta method SE)   |
+| IV/2SLS | `fit_iv2sls()` | Two-stage least squares using G as instrument         |
+| PGC     | `fit_pgc()`    | Proxy G-component correction (3-step residualisation) |
 
 ---
+
 ## Causal Model
 
 ```
@@ -59,25 +59,25 @@ True total effect: tau = beta_Z + alpha_M * beta_M
 
 ## Key Findings (toy simulation)
 
-- IV/2SLS is unbiased and correctly controls Type I error at 5% across all confounding strengths. Recommended for the real data analysis.
-- PGC is unbiased on average but ~2x higher variance than IV/2SLS.
-- DIRECT has structural bias that does not shrink with sample size.
-- COCA becomes unstable at low proxy quality; Type I error approaches 100% under confounding.
-- UNADJ is always severely biased; provided as a reference floor.
+- **IV/2SLS** is unbiased and correctly controls Type I error at 5% across all confounding strengths. Recommended for the real data analysis.
+- **PGC** is unbiased on average but ~2× higher variance than IV/2SLS.
+- **DIRECT** has structural bias that does not shrink with sample size.
+- **COCA** becomes unstable at low proxy quality; Type I error approaches 100% under confounding.
+- **UNADJ** is always severely biased; provided as a reference floor.
 
 ---
 
 ## Package Structure
 
 ```
-scenic/
+iconic/
 ├── R/
 │   ├── estimators.R    # fit_direct, fit_coca, fit_iv2sls, fit_pgc
 │   ├── generate_data.R # generate_toy_data (internal DGP)
 │   ├── run_methods.R   # run_methods, summarise_results (internal wrappers)
 │   ├── simulation.R    # run_simulation, sweep_param, run_null_sim, sweep_null_by_conf
 │   └── plots.R         # plotting helpers
-├── tests/testthat/     # testthat unit tests
+├── tests/testthat/
 ├── DESCRIPTION
 └── NAMESPACE
 ```
