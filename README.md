@@ -10,7 +10,7 @@ An R package for benchmarking causal inference methods in multi-omic observation
 
 Estimating causal effects of prenatal exposures on fetal outcomes is complicated by unmeasured confounding, factors like socioeconomic stress or diet that affect both maternal PFAS levels and placental gene expression. Standard regression adjusts for observed covariates but cannot remove this residual confounding.
 
-The SCENIC framework leverages three sources of identification:
+The ICONIC framework leverages three sources of identification:
 
 - **G** — a polygenic risk score for PFAS metabolism as a genetic instrument (Mendelian randomization)
 - **W** — a panel of negative-control outcomes (transcripts not on the PFAS causal pathway) that share the same unmeasured confounders as Y
